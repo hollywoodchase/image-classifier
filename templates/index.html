@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classifier</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" name="file" id="file" accept="image/*" required>
+            <button type="submit">Upload and Classify</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileField = document.querySelector('input[type="file"]');
+
+            formData.append('file', fileField.files[0]);
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+
+            if (response.ok) {
+                resultDiv.innerHTML = `<p>Class: ${result.class}</p><p>Confidence: ${result.confidence.toFixed(2)}</p>`;
+            } else {
+                resultDiv.innerHTML = `<p>Error: ${result.error}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
